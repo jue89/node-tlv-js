@@ -100,6 +100,23 @@ describe('constructor', () => {
 	test('unknown type error', () => {
 		expect(() => new TLV({type: 'foo'})).toThrowError('Unknown type: foo');
 	});
+
+	test('update length on addition of new TLV objects', () => {
+		const tlv = new TLV();
+		expect(tlv.length).toBe(0);
+		const sub = new TLV();
+		tlv.value = sub;
+		expect(tlv.length).toBe(2);
+		expect(sub.length).toBe(0);
+		const subsub1 = new TLV();
+		sub.value = subsub1;
+		expect(tlv.length).toBe(4);
+		expect(sub.length).toBe(2);
+		const subsub2 = new TLV();
+		subsub1.next = subsub2;
+		expect(tlv.length).toBe(6);
+		expect(sub.length).toBe(4);
+	});
 });
 
 describe('fromBuffer', () => {

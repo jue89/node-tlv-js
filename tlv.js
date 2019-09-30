@@ -47,12 +47,15 @@ class TLV {
 
 	set value (value) {
 		if (value instanceof TLV) {
+			value._parent = this;
 			this._value = value;
 			this.type = 'constructed';
 		} else if (value instanceof Array) {
+			value[0]._parent = this;
 			this._value = value[0];
 			for (let i = 1; i < value.length; i++) {
-				value[i - 1].next = value[i];
+				value[i]._parent = this;
+				value[i - 1]._next = value[i];
 			}
 			this.type = 'constructed';
 		} else {
@@ -85,6 +88,18 @@ class TLV {
 		return this._tag;
 	}
 
+	set next (next) {
+		this._next = next;
+		if (this._parent) {
+			next._parent = this._parent;
+			next._parent._updateLength();
+		}
+	}
+
+	get next () {
+		return this._next;
+	}
+
 	_updateLength () {
 		if (this._value instanceof Buffer) {
 			this.length = this._value.length;
@@ -113,6 +128,10 @@ class TLV {
 			this.fullLength += 2;
 		} else {
 			this.fullLength += 3;
+		}
+
+		if (this._parent) {
+			this._parent._updateLength();
 		}
 	}
 
