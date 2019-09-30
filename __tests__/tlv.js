@@ -201,3 +201,74 @@ describe('fromBuffer', () => {
 		expect(tlv.next).toBeUndefined();
 	});
 });
+
+describe('toBuffer', () => {
+	test('class universal', () => {
+		const tlv = new TLV({class: 'universal'});
+		expect(tlv.toBuffer().toString('hex')).toEqual('0000');
+	});
+
+	test('class application', () => {
+		const tlv = new TLV({class: 'application'});
+		expect(tlv.toBuffer().toString('hex')).toEqual('4000');
+	});
+
+	test('class context', () => {
+		const tlv = new TLV({class: 'context'});
+		expect(tlv.toBuffer().toString('hex')).toEqual('8000');
+	});
+
+	test('class private', () => {
+		const tlv = new TLV({class: 'private'});
+		expect(tlv.toBuffer().toString('hex')).toEqual('c000');
+	});
+
+	test('class primitive', () => {
+		const tlv = new TLV({type: 'primitive'});
+		expect(tlv.toBuffer().toString('hex')).toEqual('0000');
+	});
+
+	test('class constructed', () => {
+		const tlv = new TLV({type: 'constructed'});
+		expect(tlv.toBuffer().toString('hex')).toEqual('2000');
+	});
+
+	test('tag small', () => {
+		const tlv = new TLV({tag: 30});
+		expect(tlv.toBuffer().toString('hex')).toEqual('1e00');
+	});
+
+	test('tag mid', () => {
+		const tlv = new TLV({tag: 127});
+		expect(tlv.toBuffer().toString('hex')).toEqual('1f7f00');
+	});
+
+	test('tag large', () => {
+		const tlv = new TLV({tag: 0x0102});
+		expect(tlv.toBuffer().toString('hex')).toEqual('1f810200');
+	});
+
+	test('value small', () => {
+		const tlv = new TLV({value: Buffer.alloc(1, 0xab)});
+		expect(tlv.toBuffer().toString('hex')).toEqual('0001ab');
+	});
+
+	test('value mid', () => {
+		const tlv = new TLV({value: Buffer.alloc(128, 0xab)});
+		expect(tlv.toBuffer().toString('hex')).toEqual('008180' + 'ab'.repeat(128));
+	});
+
+	test('value large', () => {
+		const tlv = new TLV({value: Buffer.alloc(256, 0xab)});
+		expect(tlv.toBuffer().toString('hex')).toEqual('00820100' + 'ab'.repeat(256));
+	});
+
+	test('encapsulated TLV objects', () => {
+		const value = [
+			new TLV({tag: 0x01}),
+			new TLV({tag: 0x02})
+		];
+		const tlv = new TLV({value});
+		expect(tlv.toBuffer().toString('hex')).toEqual('200401000200');
+	});
+});

@@ -154,6 +154,35 @@ class TLV {
 
 		return tlv;
 	}
+
+	toBuffer () {
+		let tag = (this._class << 6) + (this._type << 5);
+		if (this._tag <= 30) {
+			tag = Buffer.from([tag + this._tag]);
+		} else if (this.tag <= 127) {
+			tag = Buffer.from([tag + 0x1f, this._tag]);
+		} else {
+			tag = Buffer.from([tag + 0x1f, (this._tag >> 8) | 0x80, this._tag & 0xff]);
+		}
+
+		let length;
+		if (this.length <= 127) {
+			length = Buffer.from([this.length]);
+		} else if (this.length <= 255) {
+			length = Buffer.from([0x81, this.length]);
+		} else {
+			length = Buffer.from([0x82, this.length >> 8, this.length & 0xff]);
+		}
+
+		let value = this.value;
+		if (value instanceof Array) {
+			value = Buffer.concat(value.map((v) => v.toBuffer()));
+		} else if (value === undefined) {
+			value = Buffer.alloc(0);
+		}
+
+		return Buffer.concat([tag, length, value]);
+	}
 }
 
 module.exports = TLV;
