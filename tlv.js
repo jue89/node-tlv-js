@@ -119,16 +119,17 @@ class TLV {
 		buf = new Buf(buf);
 		const tlv = new TLV();
 
-		const tag = buf.getByte();
+		let tag = buf.getByte();
 		tlv._class = (tag >> 6);
 		tlv._type = (tag >> 5) & 0x01;
-		tlv._tag = tag & 0x1f;
-		if (tlv._tag === 0x1f) {
-			tlv._tag = buf.getByte();
-			if (tlv._tag & 0x80) {
-				tlv._tag = ((tlv._tag & 0x7f) << 8) + buf.getByte();
+		tag = tag & 0x1f;
+		if (tag === 0x1f) {
+			tag = buf.getByte();
+			if (tag & 0x80) {
+				tag = ((tag & 0x7f) << 8) + buf.getByte();
 			}
 		}
+		tlv.tag = tag;
 
 		let length = buf.getByte();
 		if (length === 0x81) {

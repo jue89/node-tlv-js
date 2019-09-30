@@ -134,16 +134,19 @@ describe('fromBuffer', () => {
 	test('tag small', () => {
 		const tlv = TLV.fromBuffer(Buffer.from([0x01, 0x00]));
 		expect(tlv.tag).toBe(1);
+		expect(tlv.fullLength).toBe(2);
 	});
 
 	test('tag mid', () => {
 		const tlv = TLV.fromBuffer(Buffer.from([0x1f, 0x7f, 0x00]));
 		expect(tlv.tag).toBe(127);
+		expect(tlv.fullLength).toBe(3);
 	});
 
 	test('tag large', () => {
 		const tlv = TLV.fromBuffer(Buffer.from([0x1f, 0x81, 0x02, 0x00]));
 		expect(tlv.tag).toBe(0x0102);
+		expect(tlv.fullLength).toBe(4);
 	});
 
 	test('value primitive small', () => {
