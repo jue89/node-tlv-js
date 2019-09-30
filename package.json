@@ -1,0 +1,30 @@
+{
+  "name": "tlv",
+  "version": "0.0.0",
+  "description": "",
+  "main": "tlv.js",
+  "scripts": {
+    "test": "happiness && jest --verbose",
+    "watch": "jest --watchAll"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "happiness": "^10.0.2",
+    "jest": "^24.9.0"
+  },
+  "jest": {
+    "automock": false,
+    "clearMocks": true
+  },
+  "happiness": {
+    "globals": [
+      "jest",
+      "describe",
+      "test",
+      "expect",
+      "beforeEach",
+      "afterEach"
+    ]
+  }
+}
