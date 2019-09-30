@@ -99,3 +99,100 @@ describe('constructor', () => {
 		expect(() => new TLV({type: 'foo'})).toThrowError('Unknown type: foo');
 	});
 });
+
+describe('fromBuffer', () => {
+	test('class universal', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x00, 0x00]));
+		expect(tlv.class).toEqual('universal');
+	});
+
+	test('class application', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x40, 0x00]));
+		expect(tlv.class).toEqual('application');
+	});
+
+	test('class context', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x80, 0x00]));
+		expect(tlv.class).toEqual('context');
+	});
+
+	test('class private', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0xc0, 0x00]));
+		expect(tlv.class).toEqual('private');
+	});
+
+	test('type primitive', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x00, 0x00]));
+		expect(tlv.type).toEqual('primitive');
+	});
+
+	test('type constructed', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x20, 0x00]));
+		expect(tlv.type).toEqual('constructed');
+	});
+
+	test('tag small', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x01, 0x00]));
+		expect(tlv.tag).toBe(1);
+	});
+
+	test('tag mid', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x1f, 0x7f, 0x00]));
+		expect(tlv.tag).toBe(127);
+	});
+
+	test('tag large', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x1f, 0x81, 0x02, 0x00]));
+		expect(tlv.tag).toBe(0x0102);
+	});
+
+	test('value primitive small', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x00, 0x01, 0xab]));
+		expect(tlv.length).toBe(1);
+		expect(tlv.value.toString('hex')).toEqual('ab');
+	});
+
+	test('value primitive mid', () => {
+		const buf = Buffer.concat([
+			Buffer.from([0x00, 0x81, 0x80]),
+			Buffer.alloc(0x80)
+		]);
+		const tlv = TLV.fromBuffer(buf);
+		expect(tlv.length).toBe(0x80);
+	});
+
+	test('value primitive large', () => {
+		const buf = Buffer.concat([
+			Buffer.from([0x00, 0x82, 0x01, 0x02]),
+			Buffer.alloc(0x0102)
+		]);
+		const tlv = TLV.fromBuffer(buf);
+		expect(tlv.length).toBe(0x0102);
+	});
+
+	test('length field error', () => {
+		const buf = Buffer.from([0x00, 0x80]);
+		expect(() => TLV.fromBuffer(buf)).toThrowError('Invalid length field');
+	});
+
+	test('value constructed', () => {
+		const tlv = TLV.fromBuffer(Buffer.from([0x20, 0x03, 0x00, 0x01, 0xef]));
+		expect(tlv.length).toBe(3);
+		expect(tlv.value.length).toBe(1);
+		expect(tlv.value[0]).toBeInstanceOf(TLV);
+		expect(tlv.value[0].value.toString('hex')).toEqual('ef');
+	});
+
+	test('mutliple childs', () => {
+		const buf = Buffer.concat([
+			Buffer.from([0x20, 0x04]),
+			Buffer.from([0x01, 0x00]),
+			Buffer.from([0x02, 0x00])
+		]);
+		const tlv = TLV.fromBuffer(buf);
+		expect(tlv.value.length).toBe(2);
+		expect(tlv.value[0].tag).toBe(0x01);
+		expect(tlv.value[1].tag).toBe(0x02);
+		expect(tlv.next).toBeUndefined();
+	});
+});

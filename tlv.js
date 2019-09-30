@@ -1,3 +1,5 @@
+const Buf = require('./buf.js');
+
 const classById = ['universal', 'application', 'context', 'private'];
 const classByName = classById.reduce((acc, name, id) => {
 	acc[name] = id;
@@ -93,7 +95,7 @@ class TLV {
 				cur = cur.next;
 			}
 		} else {
-			// this.length = 0;
+			this.length = 0;
 		}
 
 		this.fullLength = this.length;
@@ -111,6 +113,44 @@ class TLV {
 		} else {
 			this.fullLength += 3;
 		}
+	}
+
+	static fromBuffer (buf) {
+		buf = new Buf(buf);
+		const tlv = new TLV();
+
+		const tag = buf.getByte();
+		tlv._class = (tag >> 6);
+		tlv._type = (tag >> 5) & 0x01;
+		tlv._tag = tag & 0x1f;
+		if (tlv._tag === 0x1f) {
+			tlv._tag = buf.getByte();
+			if (tlv._tag & 0x80) {
+				tlv._tag = ((tlv._tag & 0x7f) << 8) + buf.getByte();
+			}
+		}
+
+		let length = buf.getByte();
+		if (length === 0x81) {
+			length = buf.getByte();
+		} else if (length === 0x82) {
+			length = buf.getByte() << 8;
+			length += buf.getByte();
+		} else if (length >= 0x80) {
+			throw new Error('Invalid length field');
+		}
+
+		if (length) {
+			const value = buf.getSlice(length);
+			tlv.value = (tlv.type === 'constructed') ? TLV.fromBuffer(value) : value;
+		}
+
+		const rest = buf.getRest();
+		if (rest.length) {
+			tlv.next = TLV.fromBuffer(rest);
+		}
+
+		return tlv;
 	}
 }
 
