@@ -72,6 +72,7 @@ describe('constructor', () => {
 		const valueSecond = new TLV();
 		const valueFirst = new TLV({next: valueSecond});
 		const tlv = new TLV({value: valueFirst});
+		expect(tlv.type).toEqual('constructed');
 		expect(tlv.length).toBe(valueSecond.fullLength + valueFirst.fullLength);
 	});
 
@@ -82,6 +83,7 @@ describe('constructor', () => {
 			valueFirst,
 			valueSecond
 		]});
+		expect(tlv.type).toEqual('constructed');
 		expect(tlv.value[0]).toBe(valueFirst);
 		expect(tlv.value[1]).toBe(valueSecond);
 	});

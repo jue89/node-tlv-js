@@ -54,6 +54,7 @@ class TLV {
 			for (let i = 1; i < value.length; i++) {
 				value[i - 1].next = value[i];
 			}
+			this.type = 'constructed';
 		} else {
 			this._value = value;
 			this.type = 'primitive';
