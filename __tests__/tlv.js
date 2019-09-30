@@ -288,4 +288,9 @@ describe('toBuffer', () => {
 		const tlv = new TLV({value});
 		expect(tlv.toBuffer().toString('hex')).toEqual('200401000200');
 	});
+
+	test('appended TLV objects', () => {
+		const tlv = new TLV({tag: 1, next: new TLV({tag: 2})});
+		expect(tlv.toBuffer().toString('hex')).toEqual('01000200');
+	});
 });
