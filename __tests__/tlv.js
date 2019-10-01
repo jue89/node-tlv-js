@@ -117,6 +117,32 @@ describe('constructor', () => {
 		expect(tlv.length).toBe(6);
 		expect(sub.length).toBe(4);
 	});
+
+	test('inherit from other TLV object', () => {
+		const cls = 'universal';
+		const type = 'constructed';
+		const tag = 0x10;
+		const base = new TLV({class: cls, type, tag});
+		const value = new TLV();
+		const tlv = new TLV({inherit: base, value});
+		expect(tlv.class).toEqual(cls);
+		expect(tlv.type).toEqual(type);
+		expect(tlv.tag).toEqual(tag);
+		expect(tlv.value[0]).toBe(value);
+	});
+
+	test('inherit from other TLV object and override', () => {
+		const cls = 'universal';
+		const type = 'primitive';
+		const tag = 0x10;
+		const base = new TLV({class: cls, type: 'constructed', tag});
+		const value = new TLV();
+		const tlv = new TLV({inherit: base, type, value});
+		expect(tlv.class).toEqual(cls);
+		expect(tlv.type).toEqual(type);
+		expect(tlv.tag).toEqual(tag);
+		expect(tlv.value[0]).toBe(value);
+	});
 });
 
 describe('fromBuffer', () => {

@@ -14,10 +14,12 @@ const typeByName = typeById.reduce((acc, name, id) => {
 
 class TLV {
 	constructor (data = {}) {
-		this.class = data.class || 'universal';
-		this.tag = data.tag || 0;
+		if (!data.inherit) data.inherit = {};
+		this.class = data.class || data.inherit.class || 'universal';
+		this.tag = data.tag || data.inherit.tag || 0;
 		this.value = data.value || Buffer.alloc(0);
-		if (data.type) this.type = data.type;
+		const type = data.type || data.inherit.type;
+		if (type) this.type = type;
 		this.next = data.next;
 	}
 
