@@ -18,7 +18,7 @@ class TLV {
 		this.tag = data.tag || 0;
 		this.value = data.value || Buffer.alloc(0);
 		if (data.type) this.type = data.type;
-		if (data.next) this.next = data.next;
+		this.next = data.next;
 	}
 
 	set class (c) {
@@ -195,17 +195,12 @@ class TLV {
 
 		let value = this.value;
 		if (value instanceof Array) {
-			// The first element will append following TLV objects
-			value = value[0].toBuffer();
+			value = Buffer.concat(value.map((v) => v.toBuffer()));
 		} else if (value === undefined) {
 			value = Buffer.alloc(0);
 		}
 
-		// Append following TLV objects
-		const data = [tag, length, value];
-		if (this._next) data.push(this._next.toBuffer());
-
-		return Buffer.concat(data);
+		return Buffer.concat([tag, length, value]);
 	}
 }
 
