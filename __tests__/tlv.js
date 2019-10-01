@@ -289,3 +289,19 @@ describe('toBuffer', () => {
 		expect(tlv.toBuffer().toString('hex')).toEqual('200401000200');
 	});
 });
+
+describe('assertion', () => {
+	test('compare two TLV', () => {
+		const needle = new TLV({class: 'universal', type: 'constructed', tag: 0x10});
+		expect(new TLV({class: 'universal', type: 'constructed', tag: 0x10}).is(needle)).toBe(true);
+		expect(new TLV({class: 'context', type: 'constructed', tag: 0x10}).is(needle)).toBe(false);
+		expect(new TLV({class: 'universal', type: 'primitive', tag: 0x10}).is(needle)).toBe(false);
+		expect(new TLV({class: 'universal', type: 'constructed', tag: 0x0a}).is(needle)).toBe(false);
+	});
+
+	test('throw errors', () => {
+		const needle = new TLV({class: 'universal', type: 'constructed', tag: 0x10});
+		expect(() => new TLV({class: 'universal', type: 'constructed', tag: 0x10}).assert(needle)).not.toThrow();
+		expect(() => new TLV({class: 'universal', type: 'constructed', tag: 0x0a}).assert(needle)).toThrowError('TLV tag missmatch');
+	});
+});

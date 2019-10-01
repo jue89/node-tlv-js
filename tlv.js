@@ -202,6 +202,14 @@ class TLV {
 
 		return Buffer.concat([tag, length, value]);
 	}
+
+	is (needle) {
+		return this._class === needle._class && this._type === needle._type && this._tag === needle._tag;
+	}
+
+	assert (needle) {
+		if (!this.is(needle)) throw new Error('TLV tag missmatch');
+	}
 }
 
 module.exports = TLV;
