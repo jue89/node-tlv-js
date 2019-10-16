@@ -17,7 +17,7 @@ class TLV {
 		if (!data.inherit) data.inherit = {};
 		this.class = data.class || data.inherit.class || 'universal';
 		this.tag = data.tag || data.inherit.tag || 0;
-		this.value = data.value || Buffer.alloc(0);
+		this.value = data.value;
 		const type = data.type || data.inherit.type;
 		if (type) this.type = type;
 		this.next = data.next;
@@ -60,9 +60,13 @@ class TLV {
 				value[i - 1]._next = value[i];
 			}
 			this.type = 'constructed';
-		} else {
+		} else if (value instanceof Buffer) {
 			this._value = value;
 			this.type = 'primitive';
+		} else if (!value) {
+			delete this._value;
+		} else {
+			throw new Error('Invalid type');
 		}
 		this._updateLength();
 	}
@@ -76,6 +80,12 @@ class TLV {
 				cur = cur.next;
 			}
 			return childs;
+		} else if (this._value === undefined) {
+			if (this.type === 'constructed') {
+				return [];
+			} else {
+				return Buffer.alloc(0);
+			}
 		} else {
 			return this._value;
 		}

@@ -143,6 +143,20 @@ describe('constructor', () => {
 		expect(tlv.tag).toEqual(tag);
 		expect(tlv.value[0]).toBe(value);
 	});
+
+	test('return right type for empty TLV objects', () => {
+		const constructed = new TLV({type: 'constructed'});
+		expect(constructed.value).toBeInstanceOf(Array);
+		expect(constructed.value.length).toBe(0);
+		const primitive = new TLV({type: 'primitive'});
+		expect(primitive.value).toBeInstanceOf(Buffer);
+		expect(primitive.value.length).toBe(0);
+	});
+
+	test('complain about invalid value types', () => {
+		const tlv = new TLV();
+		expect(() => { tlv.value = true; }).toThrow('Invalid type');
+	});
 });
 
 describe('fromBuffer', () => {
