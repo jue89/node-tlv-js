@@ -1,14 +1,28 @@
 {
-  "name": "tlv",
-  "version": "0.0.0",
-  "description": "",
+  "name": "tlv.js",
+  "version": "1.0.0",
+  "description": "TLV de- and encoder",
   "main": "tlv.js",
   "scripts": {
     "test": "happiness && jest --verbose",
     "watch": "jest --watchAll"
   },
-  "author": "",
+  "keywords": [
+    "tlv",
+    "asn.1",
+    "ber",
+    "der"
+  ],
+  "author": "Juergen Fitschen <me@jue.yt>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jue89/node-tlv-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jue89/node-tlv-js/issues"
+  },
+  "homepage": "https://github.com/jue89/node-tlv-js#readme",
   "devDependencies": {
     "happiness": "^10.0.2",
     "jest": "^24.9.0"
